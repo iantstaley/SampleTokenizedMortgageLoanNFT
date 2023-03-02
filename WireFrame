@@ -1,0 +1,70 @@
+echo "# SampleTokenizedMortgageLoanNFT" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/iantstaley/SampleTokenizedMortgageLoanNFT.git
+git push -u origin main
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
+
+contract MortgageLoanNFT is ERC721 {
+    using Counters for Counters.Counter;
+    Counters.Counter private _tokenIds;
+
+    struct MortgageLoan {
+        uint256 value;
+        uint256 interestRate;
+        uint256 duration;
+        address borrower;
+    }
+
+    mapping(uint256 => MortgageLoan) private _mortgageLoans;
+
+    constructor() ERC721("MortgageLoanNFT", "MLNFT") {}
+
+    function createMortgageLoanNFT(
+        uint256 value,
+        uint256 interestRate,
+        uint256 duration,
+        address borrower
+    ) public returns (uint256) {
+        _tokenIds.increment();
+        uint256 newTokenId = _tokenIds.current();
+        _mint(msg.sender, newTokenId);
+
+        MortgageLoan memory mortgageLoan = MortgageLoan(
+            value,
+            interestRate,
+            duration,
+            borrower
+        );
+
+        _mortgageLoans[newTokenId] = mortgageLoan;
+
+        return newTokenId;
+    }
+
+    function getMortgageLoan(uint256 tokenId)
+        public
+        view
+        returns (
+            uint256,
+            uint256,
+            uint256,
+            address
+        )
+    {
+        MortgageLoan memory mortgageLoan = _mortgageLoans[tokenId];
+
+        return (
+            mortgageLoan.value,
+            mortgageLoan.interestRate,
+            mortgageLoan.duration,
+            mortgageLoan.borrower
+        );
+    }
+}
